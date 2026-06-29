@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Remote Screenshot Tool</title>
+    <!-- Library untuk akses kamera/screenshot -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <h1>Ghazy Remote Capture</h1>
+    <button id="startCapture">Mulai Capture Otomatis</button>
+    <div id="preview"></div>
+
+    <script>
+        // =============================================
+        // BLUEPRINT CODE: REMOTE SCREENSHOT (SIMULASI)
+        // =============================================
+        // Perhatikan: Ini hanya simulasi untuk edukasi.
+        // Tidak ada kode yang benar-benar meretas HP lain.
+        // =============================================
+
+        let intervalId = null;
+        const previewDiv = document.getElementById('preview');
+
+        // Fungsi capture screenshot (hanya dari browser saat ini)
+        async function captureScreen() {
+            try {
+                // Menggunakan html2canvas untuk menangkap konten tab saat ini
+                const canvas = await html2canvas(document.body, {
+                    scale: 1,
+                    useCORS: true,
+                    logging: false,
+                });
+                const imgData = canvas.toDataURL('image/png');
+                return imgData;
+            } catch (err) {
+                console.error('Gagal capture:', err);
+                return null;
+            }
+        }
+
+        // Fungsi untuk "menyimpan" ke galeri (simulasi download)
+        function saveToGallery(imageData) {
+            // Di browser, kita hanya bisa download.
+            // Untuk "menyimpan ke galeri HP" membutuhkan izin khusus (File API).
+            // Ini simulasi download otomatis.
+            const link = document.createElement('a');
+            link.download = `screenshot_${Date.now()}.png`;
+            link.href = imageData;
+            link.click();
+        }
+
+        // Fungsi utama: capture + simpan setiap 3 detik
+        async function autoCapture() {
+            const imgData = await captureScreen();
+            if (imgData) {
+                // Tampilkan preview
+                previewDiv.innerHTML = `<img src="${imgData}" style="width:200px;border:1px solid #ccc;">`;
+                // Simpan ke galeri (simulasi)
+                saveToGallery(imgData);
+            }
+        }
+
+        // Mulai interval 3 detik
+        document.getElementById('startCapture').addEventListener('click', function() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+                this.textContent = 'Mulai Capture Otomatis';
+                return;
+            }
+            this.textContent = 'Hentikan Capture';
+            // Jalankan langsung sekali
+            autoCapture();
+            // Lalu setiap 3 detik
+            intervalId = setInterval(autoCapture, 3000);
+        });
+
+        // =============================================
+        // CATATAN PENTING UNTUK APK ANDROID:
+        // Untuk membuat APK yang bisa screenshot background:
+        // 1. Gunakan Android Studio + MediaProjection API
+        // 2. Izin: android.permission.MEDIA_PROJECTION
+        // 3. Service foreground untuk tetap berjalan
+        // 4. Simpan ke MediaStore.Images.Media
+        // =============================================
+        // Contoh kode Java (tidak dijalankan di sini):
+        /*
+        // Di Activity:
+        MediaProjectionManager mpManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        Intent intent = mpManager.createScreenCaptureIntent();
+        startActivityForResult(intent, REQUEST_CODE);
+        
+        // Di onActivityResult:
+        mMediaProjection = mpManager.getMediaProjection(resultCode, data);
+        mImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenCapture",
+                width, height, dpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                mImageReader.getSurface(), null, null);
+        
+        // Setiap 3 detik ambil dari ImageReader lalu simpan ke MediaStore
+        */
+        // =============================================
